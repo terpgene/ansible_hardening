@@ -1,0 +1,28 @@
+---
+- hosts: localhost
+  any_errors_fatal: true
+  tasks:
+    - name: Install git
+      become: true
+      ansible.builtin.package:
+        name: git
+        state: present
+
+    - name: Checkout ubuntu.hardening 
+      become: true
+      ansible.builtin.git:
+        repo: 'https://github.com/terpgene/ansible-role-hardening'
+        dest: /etc/ansible/roles/ubuntu.hardening
+        version: master
+
+    - name: Include the hardening role # change sshd_admin network ipv4
+      ansible.builtin.include_role:
+        name: ubuntu.hardening
+      vars:
+        block_blacklisted: true
+        sshd_admin_net:
+          - 10.0.2.0/24
+          - 192.168.0.0/24
+          - 192.168.1.0/24
+        suid_sgid_permissions: false
+...
